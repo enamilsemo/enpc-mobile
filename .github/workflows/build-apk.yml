@@ -1,60 +1,41 @@
-Skip to content
-enamilsemo
-enpc-mobile
-Repository navigation
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security and quality
-Insights
-Settings
-Actions: enamilsemo/enpc-mobile
-Actions
-Management
-All workflows
-Filter workflow runs
-Showing runs from all workflows
-Help us improve GitHub Actions
+name: Flutter APK Build
 
-Tell us how to make GitHub Actions work better for you with three quick questions.
-5 workflow runs
-fix stable flutter build workflow
-Build Flutter APK #5: Commit cd5bfc7 pushed by enamilsemo
-main	
-1 minute ago
- 9s
-stable github actions flutter build
-Build Flutter APK #4: Commit 99615dc pushed by enamilsemo
-main	
-6 minutes ago
- 2m 22s
-fix github actions node issue
-Build Flutter APK #3: Commit b984c7a pushed by enamilsemo
-main	
-11 minutes ago
- 2m 35s
-fix github actions flutter build
-Build Flutter APK #2: Commit 561c6b3 pushed by enamilsemo
-main	
-17 minutes ago
- 2m 32s
-add github actions apk builder
-Build Flutter APK #1: Commit 0f7bfb7 pushed by enamilsemo
-main	
-21 minutes ago
- 8s
-Footer
-© 2026 GitHub, Inc.
-Footer navigation
-Terms
-Privacy
-Security
-Status
-Community
-Docs
-Contact
-Manage cookies
-Do not share my personal information
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter doctor
+        run: flutter doctor -v
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
