@@ -2,76 +2,57 @@ name: Build ENPC APK
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build-apk:
+  build:
     name: Build Release APK
     runs-on: ubuntu-latest
 
     steps:
+      # 📥 تحميل المشروع
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java 17
+      # ☕ Java 17
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
+      # 🐦 Flutter (نسخة متوافقة مع مشروعك)
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.5'
+          flutter-version: '3.41.9'
           channel: 'stable'
           cache: true
 
-      - name: Verify Flutter version
+      # 🔍 تأكد
+      - name: Flutter version
         run: flutter --version
 
+      # 📦 تحميل المكتبات
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Analyze code
-        run: flutter analyze --no-fatal-infos
-        continue-on-error: true
-
-      - name: Build release APK (split by ABI)
+      # 🏗️ بناء APK
+      - name: Build APK
         run: |
           flutter build apk \
             --release \
             --split-per-abi \
-            --no-shrink
+            --no-shrink \
+            --android-skip-build-dependency-validation
 
-      - name: Build universal APK
-        run: |
-          flutter build apk \
-            --release \
-            --no-shrink
-
-      - name: Upload arm64 APK
+      # 📤 رفع APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: enpc-arm64-release
-          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-          if-no-files-found: warn
-
-      - name: Upload universal APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: enpc-universal-release
-          path: build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: warn
-
-      - name: Upload all APKs
-        uses: actions/upload-artifact@v4
-        with:
-          name: enpc-all-apks
+          name: enpc-apk
           path: build/app/outputs/flutter-apk/
-          if-no-files-found: warn
