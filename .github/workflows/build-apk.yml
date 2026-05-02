@@ -2,57 +2,76 @@ name: Build ENPC APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
   workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
-  build:
+  build-apk:
     name: Build Release APK
     runs-on: ubuntu-latest
 
     steps:
-      # 📥 تحميل المشروع
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ☕ Java 17
-      - name: Set up Java
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # 🐦 Flutter (نسخة متوافقة مع مشروعك)
-      - name: Set up Flutter
+      - name: Set up Flutter 3.41.9
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.41.9'
           channel: 'stable'
           cache: true
 
-      # 🔍 تأكد
-      - name: Flutter version
+      - name: Flutter version info
         run: flutter --version
 
-      # 📦 تحميل المكتبات
       - name: Install dependencies
         run: flutter pub get
 
-      # 🏗️ بناء APK
-      - name: Build APK
+      - name: Analyze (non-fatal)
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+        continue-on-error: true
+
+      - name: Build APK (split per ABI)
         run: |
           flutter build apk \
             --release \
             --split-per-abi \
-            --no-shrink \
-            --android-skip-build-dependency-validation
+            --no-shrink
 
-      # 📤 رفع APK
-      - name: Upload APK
+      - name: Build universal APK
+        run: |
+          flutter build apk \
+            --release \
+            --no-shrink
+
+      - name: List built APKs
+        run: ls -lh build/app/outputs/flutter-apk/
+
+      - name: Upload arm64-v8a APK (recommended)
         uses: actions/upload-artifact@v4
         with:
-          name: enpc-apk
-          path: build/app/outputs/flutter-apk/
+          name: ENPC-arm64-release
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+          if-no-files-found: error
+
+      - name: Upload armeabi-v7a APK (older devices)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ENPC-armeabi-release
+          path: build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+          if-no-files-found: warn
+
+      - name: Upload universal APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ENPC-universal-release
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: warn

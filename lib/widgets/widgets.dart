@@ -33,7 +33,6 @@ class EnpcTheme {
         colorScheme: ColorScheme.fromSeed(
           seedColor: accent,
           surface: paper,
-          background: paper,
         ),
         textTheme: GoogleFonts.dmSansTextTheme().copyWith(
           headlineLarge: GoogleFonts.dmSerifDisplay(color: ink),
@@ -50,7 +49,7 @@ class EnpcTheme {
           titleTextStyle: GoogleFonts.dmSerifDisplay(
               fontSize: 20, color: Colors.white, fontWeight: FontWeight.w400),
         ),
-        cardTheme: CardThemeData(
+        cardTheme: CardTheme(
           color: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(

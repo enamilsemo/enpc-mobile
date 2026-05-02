@@ -1381,7 +1381,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
   Widget build(BuildContext context) {
     final api = context.watch<ApiService>();
     return Scaffold(
-      appBar: const AppBar(title: Text('Messages')),
+      appBar: AppBar(title: const Text('Messages')),
       floatingActionButton: FloatingActionButton(
         backgroundColor: EnpcTheme.ink,
         onPressed: () async {
