@@ -9,8 +9,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Java
@@ -19,7 +22,7 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Install Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -31,7 +34,7 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Build release APK
+      - name: Build APK (release)
         run: flutter build apk --release
 
       - name: Upload APK artifact
