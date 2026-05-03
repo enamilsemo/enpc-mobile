@@ -33,7 +33,9 @@ jobs:
         run: flutter --version
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          flutter clean
+          flutter pub get
 
       - name: Analyze (non-fatal)
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
